@@ -1,6 +1,10 @@
 [submodule "local/MinionLib"]
 	path = local/MinionLib
 	url = https://github.com/FuYnAloft/MinionLib.git
+[submodule "local/RitsuLib"]
+	path = local/RitsuLib
+	url = https://github.com/BAKAOLC/STS2-RitsuLib.git
 [submodule "bundled_skills"]
 	path = bundled_skills
 	url = https://github.com/shadowversebydmod/TestTheSpireSkills.git
+	branch = ritsu

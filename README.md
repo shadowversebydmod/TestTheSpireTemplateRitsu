@@ -32,7 +32,7 @@ dotnet new testthespire-sts2-character-ritsu \
   --ModAuthor "Your Name"
 ```
 
-进入新项目后初始化 submodule。`local/MinionLib` 和 `bundled_skills` 通过 `.gitmodules` 取得；RitsuLib 通过 `STS2.RitsuLib` NuGet 包取得。`dotnet new` 输出里已经带有 `.agents/skills`，初始化 submodule 后也能看到 skill 的上游来源：
+进入新项目后初始化 submodule。`local/RitsuLib`、`local/MinionLib` 和 `bundled_skills` 都通过 `.gitmodules` 取得。`dotnet new` 输出里已经带有 `.agents/skills`，初始化 submodule 后也能看到 skill 的上游来源：
 
 ```bash
 cd ../MyFirstMod
@@ -82,7 +82,7 @@ dotnet msbuild MyFirstMod.Tests/MyFirstMod.Tests.csproj \
 可以先发一条检查提示：
 
 ```text
-请先按照 AGENTS.md 检查这个仓库是否适合 AI 开发。STS2 路径是 `/path/to/SlayTheSpire2`。确认 submodule、local/sts2-decompiled、RitsuLib、MinionLib、bundled skills 和 TestTheSpire smoke test 正常后，再开始实现。
+请先按照 AGENTS.md 检查这个仓库是否适合 AI 开发。STS2 路径是 `/path/to/SlayTheSpire2`。确认 submodule、local/sts2-decompiled、local/RitsuLib、local/MinionLib、bundled skills 和 TestTheSpire smoke test 正常后，再开始实现。
 ```
 
 ## 新增单张卡牌的提示词
@@ -103,7 +103,7 @@ dotnet msbuild MyFirstMod.Tests/MyFirstMod.Tests.csproj \
 测试：新增 focused TestTheSpire 测试，验证基础伤害和升级伤害。测试 filter 使用 TrainingSmite。
 STS2 路径：/path/to/SlayTheSpire2
 
-请先读取当前项目里的相近 Attack 样例、CharModCard、local/sts2-decompiled、RitsuLib NuGet 文档和 local/MinionLib，再实现并运行 focused test。
+请先读取当前项目里的相近 Attack 样例、CharModCard、local/sts2-decompiled、local/RitsuLib 和 local/MinionLib，再实现并运行 focused test。
 ```
 
 涉及 RitsuLib 注册或 MinionLib 组件时，把触发条件写具体：
@@ -173,6 +173,7 @@ CardName,DisplayName,ClassName,Type,Rarity,Cost,Tags,Description,Notes
 - `CharModCode/`：mod 的 C# 代码。样例卡是 `CharModCode/Cards/SampleEnhanceStrike.cs`。
 - `CharMod.Tests/`：TestTheSpire 测试项目，`Entry.cs` 是测试 mod initializer。
 - `STS2.RitsuLib`：RitsuLib NuGet 依赖，提供内容注册、角色/卡牌模板和运行时 patch。
+- `local/RitsuLib/`：RitsuLib 源码 submodule，用于查内容注册、角色/卡牌模板和运行时 patch API。
 - `local/MinionLib/`：MinionLib 源码 submodule，用于查组件 API 和样例。
 - `local/sts2-decompiled/`：`DecompileSts2` 生成的 STS2 反编译源码，保持 ignored。
 - `CharMod.csproj`：主 mod 项目，包含依赖、复制到 STS2 mods 目录和反编译 target。
@@ -229,7 +230,8 @@ dotnet msbuild MyFirstMod.Tests/MyFirstMod.Tests.csproj \
 - TestTheSpire NuGet: <https://www.nuget.org/packages/TestTheSpire>
 - TestTheSpireSkills: <https://github.com/shadowversebydmod/TestTheSpireSkills>
 - ModTemplate-StS2: <https://github.com/Alchyr/ModTemplate-StS2>
-- RitsuLib: <https://www.nuget.org/packages/STS2.RitsuLib>
+- RitsuLib NuGet: <https://www.nuget.org/packages/STS2.RitsuLib>
+- RitsuLib source: <https://github.com/BAKAOLC/STS2-RitsuLib>
 - MinionLib: <https://github.com/FuYnAloft/MinionLib>
 - ModTemplate-StS2 wiki: <https://github.com/Alchyr/ModTemplate-StS2/wiki>
 - .NET custom templates: <https://learn.microsoft.com/dotnet/core/tools/custom-templates>

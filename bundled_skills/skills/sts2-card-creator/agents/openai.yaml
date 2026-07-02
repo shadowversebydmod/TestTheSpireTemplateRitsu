@@ -1,4 +1,0 @@
-interface:
-  display_name: "STS2 Card Creator"
-  short_description: "Build STS2 cards from local source."
-  default_prompt: "Use $sts2-card-creator to add, modify, or review an STS2 card in a TestTheSpireTemplate-derived mod, update localization JSON, and validate with focused TestTheSpire tests."

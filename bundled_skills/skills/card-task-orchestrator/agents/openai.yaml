@@ -1,4 +1,0 @@
-interface:
-  display_name: "Card Task Orchestrator"
-  short_description: "Coordinate STS2 card campaigns."
-  default_prompt: "Use $card-task-orchestrator to clarify a TestTheSpireTemplateRitsu card campaign, create or update impl_task_list.md, launch clarification/design agents when needed, reserve conflict-prone localization/resource placeholders, coordinate separate dev/test and read-only review agents, merge approved work, and keep focused TestTheSpire validation recorded."

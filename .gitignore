@@ -24,6 +24,8 @@ local/*
 !local/.gdignore
 !local/MinionLib
 !local/MinionLib/
+!local/RitsuLib
+!local/RitsuLib/
 
 *.user
 *.suo
