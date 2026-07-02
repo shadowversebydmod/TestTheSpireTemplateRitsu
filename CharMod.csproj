@@ -1,0 +1,133 @@
+﻿<Project Sdk="Godot.NET.Sdk/4.5.1" InitialTargets="CheckDependencyPaths">
+    <Import Project=".\Sts2PathDiscovery.props"/>
+    <PropertyGroup>
+        <TargetFramework>net9.0</TargetFramework>
+        <ImplicitUsings>true</ImplicitUsings>
+        <Nullable>enable</Nullable> <!--Makes code analysis regarding null values stricter.-->
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+        <AppOutputBase>$(MSBuildProjectDirectory)\</AppOutputBase>
+        <PathMap>$(AppOutputBase)=.\</PathMap>
+        <GodotDisabledSourceGenerators>GodotPluginsInitializer</GodotDisabledSourceGenerators>
+        <PublicizeSts Condition="'$(PublicizeSts)' == ''">false</PublicizeSts>
+        <LocalSourcesDir Condition="'$(LocalSourcesDir)' == ''">$(MSBuildProjectDirectory)/local</LocalSourcesDir>
+        <Sts2DecompiledDir Condition="'$(Sts2DecompiledDir)' == ''">$(LocalSourcesDir)/sts2-decompiled</Sts2DecompiledDir>
+        <IlspyReferencePath Condition="'$(IlspyReferencePath)' == ''">$(Sts2DataDir)</IlspyReferencePath>
+        <RitsuLibDeployDir Condition="'$(RitsuLibDeployDir)' == ''">$(ModsPath)STS2-RitsuLib/</RitsuLibDeployDir>
+    </PropertyGroup>
+
+    <PropertyGroup>
+        <!-- Diasble architecture mismatch warning; mods are ideally built for all platforms (MSIL)
+             while your local StS2 version will be for your specific platform. -->
+        <NoWarn>$(NoWarn);MSB3270</NoWarn>
+    </PropertyGroup>
+
+    <ItemGroup Condition="Exists('$(Sts2DataDir)')" >
+        <Reference Include="0Harmony">
+            <HintPath>$(Sts2DataDir)/0Harmony.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
+        <Reference Include="sts2">
+            <HintPath>$(Sts2DataDir)/sts2.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
+    </ItemGroup>
+
+    <ItemGroup Condition="'$(PublicizeSts)' == 'true'"> <!--Allows access to originally private/protected members but may (unlikely to) cause errors.-->
+        <Publicize Include="sts2" IncludeVirtualMembers="false" IncludeCompilerGeneratedMembers="false" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="STS2.RitsuLib" Version="0.2.36" PrivateAssets="All" GeneratePathProperty="true"/>
+        <PackageReference Include="FuYnAloft.Sts2.MinionLib" Version="0.5.2" PrivateAssets="All" GeneratePathProperty="true"/>
+        <PackageReference Include="Krafs.Publicizer" Version="2.3.0" PrivateAssets="All"/>
+        <PackageReference Include="Alchyr.Sts2.ModAnalyzers" Version="*" />
+        <!-- Generates a .pck file when building if only using simple assets. May not work on all setups. Uncomment to test. -->
+        <!-- <PackageReference Include="BSchneppe.StS2.PckPacker" Version="0.1.1" PrivateAssets="All" /> -->
+        <AdditionalFiles Include="CharMod/localization/**/*.json"/> <!-- Used by analyzer -->
+    </ItemGroup>
+
+    <ItemGroup>
+        <Compile Remove="CharMod/**" />
+        <Compile Remove="CharMod.Tests/**" />
+        <Compile Remove="local/**" />
+        <Compile Remove="materials/**" />
+        <Compile Remove="shaders/**" />
+        <Compile Remove="images/**" />
+        <EmbeddedResource Remove="CharMod/**" />
+        <EmbeddedResource Remove="CharMod.Tests/**" />
+        <EmbeddedResource Remove="local/**" />
+        <EmbeddedResource Remove="materials/**" />
+        <EmbeddedResource Remove="shaders/**" />
+        <EmbeddedResource Remove="images/**" />
+        <Content Remove="CharMod.Tests/**" />
+        <Content Remove="local/**" />
+        <None Remove="local/**" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Condition="Exists('Directory.Build.props')" Include="Directory.Build.props"/>
+        <None Include=".gitignore" />
+        <None Include="CharMod.json" />
+        <None Include="project.godot"/>
+        <None Include="CharMod/**" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="CharMod\images\card_portraits\big\" />
+      <Folder Include="CharMod\images\powers\big\" />
+      <Folder Include="CharMod\images\relics\big\" />
+    </ItemGroup>
+
+    <Target Name="CheckDependencyPaths" >
+        <Error
+                Text=" Slay the Spire 2 data not found at path '$(Sts2DataDir)'"
+                Condition="'$(Sts2DataDir)' == '' or !Exists('$(Sts2DataDir)')" />
+    </Target>
+
+    <Target Name="RestoreDecompilerTool">
+        <Exec Command="dotnet tool restore" />
+    </Target>
+
+    <Target Name="DecompileSts2" DependsOnTargets="CheckDependencyPaths;RestoreDecompilerTool">
+        <!-- Sts2DataDir is inferred from Sts2Path by Sts2PathDiscovery.props.
+             Keep this target data-directory based so Windows/Linux/macOS layouts all work. -->
+        <Error
+                Text="sts2.dll was not found at '$(Sts2DataDir)/sts2.dll'."
+                Condition="!Exists('$(Sts2DataDir)/sts2.dll')" />
+        <Message Text="Decompiling sts2.dll to '$(Sts2DecompiledDir)'." Importance="high" />
+        <RemoveDir Directories="$(Sts2DecompiledDir)" Condition="Exists('$(Sts2DecompiledDir)')" />
+        <MakeDir Directories="$(Sts2DecompiledDir)" />
+        <Exec Command="dotnet tool run ilspycmd -- --disable-updatecheck --nested-directories -p -o &quot;$(Sts2DecompiledDir)&quot; -r &quot;$(IlspyReferencePath)&quot; &quot;$(Sts2DataDir)/sts2.dll&quot;" />
+    </Target>
+
+    <Target Name="CopyToModsFolderOnBuild" AfterTargets="PostBuildEvent">
+        <Message Text="Copying .dll .pdb and .json to mods folder." Importance="high" />
+        <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(ModsPath)$(MSBuildProjectName)/" />
+        <Copy SourceFiles="$(AssemblyName).json" DestinationFolder="$(ModsPath)$(MSBuildProjectName)/" />
+        <Copy SourceFiles="$(TargetDir)$(TargetName).pdb" DestinationFolder="$(ModsPath)$(MSBuildProjectName)/" />
+
+        <Message Text="Copying MinionLib to mods folder." Importance="high" />
+        <ItemGroup>
+            <MinionLibFiles Include="$(PkgFuYnAloft_Sts2_MinionLib)/lib/**/MinionLib.dll;$(PkgFuYnAloft_Sts2_MinionLib)/Content/MinionLib.pck;$(PkgFuYnAloft_Sts2_MinionLib)/Content/MinionLib.json;" />
+        </ItemGroup>
+        <Copy SourceFiles="@(MinionLibFiles)" DestinationFolder="$(ModsPath)MinionLib/" />
+    </Target>
+
+    <Target Name="CopyQuickPck" AfterTargets="PackPck" Condition="Exists('$(PckPackerOutputPath)') And '$(PckPackerSkipped)' != 'true'">
+        <Message Text="Copying quick .pck to mods folder." Importance="high"/>
+        <Copy SourceFiles="$(PckPackerOutputPath)"
+              DestinationFolder="$(ModsPath)/$(MSBuildProjectName)" />
+    </Target>
+
+    <Target Name="NeedGodotForPublish" BeforeTargets="Publish">
+        <Error Text=" Godot path must be set up before publishing; Godot not found at path '$(GodotPath)'. Check Directory.Build.props file."
+               Condition="'$(GodotPath)' == '' or !Exists('$(GodotPath)')"/>
+    </Target>
+
+    <Target Name="GodotPublish" AfterTargets="Publish" Condition="'$(GodotPath)' != '' and Exists('$(GodotPath)') and '$(IsInnerGodotExport)' != 'true'">
+        <Message Text="Exporting Godot .pck to mods folder" Importance="high"/>
+        <Exec Command="&quot;$(GodotPath)&quot; --headless --export-pack &quot;BasicExport&quot; &quot;$(ModsPath)$(MSBuildProjectName)/$(MSBuildProjectName).pck&quot;"
+              EnvironmentVariables="IsInnerGodotExport=true;MSBUILDDISABLENODEREUSE=1"
+              ContinueOnError="WarnAndContinue"/>
+    </Target>
+</Project>

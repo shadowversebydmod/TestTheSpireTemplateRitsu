@@ -1,0 +1,16 @@
+{
+  "CHAR_MOD.title": "CharMod",
+  "CHAR_MOD.titleObject": "CharMod",
+  "CHAR_MOD.description": "A template character for Slay the Spire 2 mods.",
+  "CHAR_MOD.cardsModifierTitle": "CharMod Cards",
+  "CHAR_MOD.cardsModifierDescription": "CharMod cards can appear in rewards and shops.",
+  "CHAR_MOD.pronounObject": "them",
+  "CHAR_MOD.pronounPossessive": "theirs",
+  "CHAR_MOD.pronounSubject": "they",
+  "CHAR_MOD.possessiveAdjective": "their",
+  "CHAR_MOD.eventDeathPrevention": "Not yet.",
+  "CHAR_MOD.banter.alive.endTurnPing": "...",
+  "CHAR_MOD.banter.dead.endTurnPing": "...",
+  "CHAR_MOD.aromaPrinciple": "[sine]A blank page waits.[/sine]",
+  "CHAR_MOD.goldMonologue": "[sine]This should be useful later.[/sine]"
+}

@@ -1,0 +1,254 @@
+<Project Sdk="Godot.NET.Sdk/4.5.1" InitialTargets="CheckDependencyPaths">
+    <PropertyGroup>
+        <TargetFramework>net9.0</TargetFramework>
+        <ImplicitUsings>true</ImplicitUsings>
+        <Nullable>enable</Nullable> <!--Makes code analysis regarding null values stricter.-->
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+        <DefaultItemExcludes>packages/**</DefaultItemExcludes>
+        <AppOutputBase>$(MSBuildProjectDirectory)\</AppOutputBase>
+        <PathMap>$(AppOutputBase)=.\</PathMap>
+        <LangVersion>preview</LangVersion>
+    </PropertyGroup>
+
+    <!-- OS Detection -->
+    <PropertyGroup>
+        <IsWindows>false</IsWindows>
+        <IsLinux>false</IsLinux>
+        <IsOSX>false</IsOSX>
+        <IsWindows Condition="$([MSBuild]::IsOSPlatform('Windows'))">true</IsWindows>
+        <IsLinux Condition="$([MSBuild]::IsOSPlatform('Linux'))">true</IsLinux>
+        <IsOSX Condition="$([MSBuild]::IsOSPlatform('OSX'))">true</IsOSX>
+    </PropertyGroup>
+
+    <!-- // NOTE: Megadot is version 4.5.1, and the game won't load your .pck if the Godot version used is newer. -->
+
+    <!-- Windows -->
+    <PropertyGroup Condition="'$(IsWindows)' == 'true'">
+        <AutoSteamPath>$(registry:HKEY_CURRENT_USER\Software\Valve\Steam@SteamPath)\steamapps</AutoSteamPath>
+        <SteamLibraryPath Condition="Exists('$(AutoSteamPath)/common/Slay the Spire 2')">$(AutoSteamPath)</SteamLibraryPath>
+
+        <GodotPath Condition="'$(GodotPath)' == ''">C:/megadot/MegaDot_v4.5.1-stable_mono_win64.exe</GodotPath>
+        <!-- If on Windows and Slay the Spire 2 is not installed in your default steam library, adjust the following.-->
+        <SteamLibraryPath Condition="'$(SteamLibraryPath)' == ''">C:/Program Files (x86)/Steam/steamapps</SteamLibraryPath>
+
+        <!-- The below should not need to be changed. -->
+        <Sts2Path>$(SteamLibraryPath)/common/Slay the Spire 2</Sts2Path>
+        <ModsPath>$(Sts2Path)/mods/</ModsPath>
+        <Sts2DataDir>$(Sts2Path)/data_sts2_windows_x86_64</Sts2DataDir>
+    </PropertyGroup>
+
+    <!-- Linux -->
+    <PropertyGroup Condition="'$(IsLinux)' == 'true'">
+        <SteamLibraryPath Condition="'$(SteamLibraryPath)' == ''">$(HOME)/.local/share/Steam/steamapps</SteamLibraryPath>
+        <GodotPath Condition="'$(GodotPath)' == ''">$(SteamLibraryPath)/common/Godot Engine/godot.x11.opt.tools.64</GodotPath>
+
+        <!-- The below should not need to be changed. -->
+        <Sts2Path>$(SteamLibraryPath)/common/Slay the Spire 2</Sts2Path>
+        <ModsPath>$(Sts2Path)/mods/</ModsPath>
+        <Sts2DataDir>$(Sts2Path)/data_sts2_linuxbsd_x86_64</Sts2DataDir>
+    </PropertyGroup>
+
+    <!-- macOS -->
+    <PropertyGroup Condition="'$(IsOSX)' == 'true'">
+        <SteamLibraryPath Condition="'$(SteamLibraryPath)' == ''">$(HOME)/Library/Application Support/Steam/steamapps</SteamLibraryPath>
+        <GodotPath Condition="'$(GodotPath)' == ''">$(HOME)/Applications/Godot_mono.app/Contents/MacOS/Godot</GodotPath>
+
+        <!-- The below should not need to be changed. -->
+        <Sts2Path>$(SteamLibraryPath)/common/Slay the Spire 2</Sts2Path>
+        <ModsPath>$(Sts2Path)/SlayTheSpire2.app/Contents/MacOS/mods/</ModsPath>
+        <Sts2DataDir>$(Sts2Path)/SlayTheSpire2.app/Contents/Resources/data_sts2_macos_x86_64</Sts2DataDir>
+    </PropertyGroup>
+
+    <PropertyGroup>
+        <!-- Diasble architecture mismatch warning; mods are ideally built for all platforms (MSIL)
+             while your local StS2 version will be for your specific platform. -->
+        <NoWarn>$(NoWarn);MSB3270</NoWarn>
+    </PropertyGroup>
+
+    <ItemGroup Condition="Exists('$(Sts2DataDir)')">
+        <Reference Include="0Harmony">
+            <HintPath>$(Sts2DataDir)/0Harmony.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
+        <Reference Include="sts2">
+            <HintPath>$(Sts2DataDir)/sts2.dll</HintPath>
+            <Private>false</Private>
+            <Publicize>False</Publicize> <!--Allows private/protected field references but may cause errors.-->
+        </Reference>
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Alchyr.Sts2.BaseLib" Version="3.0.3"/>
+        <!--<PackageReference Include="Alchyr.Sts2.ModAnalyzers" Version="*"/>-->
+        <AdditionalFiles Include="MinionLib/localization/**/*.json"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <!-- 屏蔽源生成器项目 -->
+        <Compile Remove="MinionLib.Generators\**"/>
+        <Content Remove="MinionLib.Generators\**"/>
+        <None Remove="MinionLib.Generators\**"/>
+        <EmbeddedResource Remove="MinionLib.Generators\**"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <Compile Remove="MinionLib/**"/>
+        <Compile Remove="materials/**"/>
+        <Compile Remove="shaders/**"/>
+        <Compile Remove="images/**"/>
+        <EmbeddedResource Remove="MinionLib/**"/>
+        <EmbeddedResource Remove="materials/**"/>
+        <EmbeddedResource Remove="shaders/**"/>
+        <EmbeddedResource Remove="images/**"/>
+    </ItemGroup>
+
+    <!-- 当配置为 ExportRelease 时，排除 example 目录下的所有 C# 文件 -->
+    <ItemGroup Condition="'$(Configuration)' == 'ExportRelease'">
+        <Compile Remove="Example/**/*.cs"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Include=".gitignore"/>
+        <None Include="MinionLib.template.json"/>
+        <None Include="project.godot"/>
+        <None Include="MinionLib/**"/>
+        <None Include="images/**"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <Content Include=".agent/*"/>
+        <Content Include="LICENSE"/>
+        <Content Include="README.md"/>
+        <Content Include="docs/**/*"/>
+        <Content Include="Example/MinionTest/**"/>
+        <None Include="Tools\ComponentCodeGeneration\**"/>
+    </ItemGroup>
+
+    <Target Name="CheckDependencyPaths">
+        <Error
+                Text=" Slay the Spire 2 data not found at path '$(Sts2DataDir)'"
+                Condition="'$(Sts2DataDir)' == '' or !Exists('$(Sts2DataDir)')"/>
+        <Error
+                Text=" Godot not found at path '$(GodotPath)'"
+                Condition="'$(GodotPath)' == '' or !Exists('$(GodotPath)')"/>
+    </Target>
+
+    <!-- 自动更新 json 中的版本号 -->
+    <Target Name="UpdateManifestVersion" BeforeTargets="BeforeBuild;PreparePckForPack">
+        <PropertyGroup>
+            <ManifestTemplateFile>$(MSBuildProjectDirectory)\MinionLib.template.json</ManifestTemplateFile>
+            <ManifestOutputFile>$(MSBuildProjectDirectory)\MinionLib.json</ManifestOutputFile>
+        </PropertyGroup>
+
+        <Message Text="Updating version in $(ManifestOutputFile) to $(Version)" Importance="high"/>
+
+        <ItemGroup>
+            <FileLines Include="$([System.IO.File]::ReadAllText($(ManifestTemplateFile)).Replace('VERSION-CODE', '$(Version)'))"/>
+        </ItemGroup>
+
+        <WriteLinesToFile File="$(ManifestOutputFile)" Lines="@(FileLines)" Overwrite="true" WriteOnlyWhenDifferent="true"/>
+    </Target>
+
+    <!-- 构建后自动将此模组的 dll, manifest 和依赖模组的文件复制到 mods 目录 -->
+    <Target Name="CopyToModsFolderOnBuild" AfterTargets="PostBuildEvent">
+        <Message Text="Copying .dll and manifest to mods folder." Importance="high"/>
+        <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(ModsPath)$(MSBuildProjectName)/"/>
+        <Copy SourceFiles="MinionLib.json" DestinationFolder="$(ModsPath)$(MSBuildProjectName)/"/>
+        <Message Text="Copying BaseLib to mods folder." Importance="high"/>
+        <ItemGroup>
+            <BaseLibFiles Include="$(NuGetPackageRoot)/alchyr.sts2.baselib/**/lib/**/BaseLib.dll;$(NuGetPackageRoot)/alchyr.sts2.baselib/**/Content/BaseLib.pck;$(NuGetPackageRoot)/alchyr.sts2.baselib/**/Content/BaseLib.json;"/>
+        </ItemGroup>
+        <Copy SourceFiles="@(BaseLibFiles)" DestinationFolder="$(ModsPath)BaseLib/"/>
+    </Target>
+
+    <!--执行 Godot 导出命令将 .pck 导出到 mods 目录 -->
+    <Target Name="GodotPublish" AfterTargets="Publish" Condition="'$(GodotPath)' != '' and Exists('$(GodotPath)') and '$(IsInnerGodotExport)' != 'true'">
+        <Message Text="Exporting Godot .pck to mods folder" Importance="high"/>
+        <Exec Command="&quot;$(GodotPath)&quot; --headless --export-pack &quot;BasicExport&quot; &quot;$(ModsPath)$(MSBuildProjectName)/$(MSBuildProjectName).pck&quot;"
+              EnvironmentVariables="IsInnerGodotExport=true;MSBUILDDISABLENODEREUSE=1"
+              ContinueOnError="WarnAndContinue"
+              Condition="'$(Configuration)' != 'ExportRelease'"/>
+        <!-- 当配置为 ExportRelease 时，使用 BasicExportNoExample 配置 -->
+        <Exec Command="&quot;$(GodotPath)&quot; --headless --export-pack &quot;BasicExportNoExample&quot; &quot;$(ModsPath)$(MSBuildProjectName)/$(MSBuildProjectName).pck&quot;"
+              EnvironmentVariables="IsInnerGodotExport=true;MSBUILDDISABLENODEREUSE=1"
+              ContinueOnError="WarnAndContinue"
+              Condition="'$(Configuration)' == 'ExportRelease'"/>
+    </Target>
+
+    <Target Name="GodotPublishSkipped" AfterTargets="Publish" Condition="'$(GodotPath)' == '' or !Exists('$(GodotPath)')">
+        <Message Text="Skipping Godot .pck export because GodotPath is not configured." Importance="high"/>
+    </Target>
+
+    <PropertyGroup>
+        <PackageId>FuYnAloft.Sts2.MinionLib</PackageId>
+        <Version>0.0.0.0-dev</Version> <!-- 版本号由命令行参数传入 -->
+        <Authors>FuYnAloft</Authors>
+        <Description>A framework library for Slay the Spire 2 modding. Provides standardized systems for implementing "Minions" (summoned allies) and "Component-based Cards" (modular card logic). Includes source generators to minimize boilerplate.</Description>
+        <PackageLicenseExpression>LGPL-3.0-only</PackageLicenseExpression>
+        <RepositoryUrl>https://github.com/FuYnAloft/MinionLib</RepositoryUrl>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+        <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+        <IncludeSymbols>true</IncludeSymbols>
+        <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+        <TargetsForTfmSpecificContentInPackage>$(TargetsForTfmSpecificContentInPackage);AddFilesToNuGetPackage</TargetsForTfmSpecificContentInPackage>
+
+        <!-- 关键：禁止自动打包 Content，由我们下方手动指定 -->
+        <IncludeContentInPack>false</IncludeContentInPack>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="MinionLib.Generators/MinionLib.Generators.csproj"
+                          OutputItemType="Analyzer"
+                          ReferenceOutputAssembly="false"
+                          Pack="false"/>
+    </ItemGroup>
+
+    <PropertyGroup>
+        <PackPckPath>$(BaseIntermediateOutputPath)pack/$(MSBuildProjectName).pck</PackPckPath>
+        <GeneratorDllPath>$(MSBuildProjectDirectory)\MinionLib.Generators\bin\$(Configuration)\netstandard2.0\MinionLib.Generators.dll</GeneratorDllPath>
+    </PropertyGroup>
+
+    <!-- 打包时检查配置 -->
+    <Target Name="EnforceVersionOnPack" BeforeTargets="AddFilesToNuGetPackage">
+        <Error Condition="'$(Version)' == '0.0.0.0-dev'"
+               Text="[打包失败] 发布 NuGet 包时需要指定版本号！示例: -p:Version=0.1.0"/>
+    </Target>
+
+    <!-- 打包前准备 Godot pck（如果本机可用 Godot） -->
+    <Target Name="PreparePckForPack"
+            BeforeTargets="AddFilesToNuGetPackage"
+            Condition="'$(GodotPath)' != '' and Exists('$(GodotPath)')">
+        <MakeDir Directories="$(BaseIntermediateOutputPath)pack"/>
+
+        <Exec Command="&quot;$(GodotPath)&quot; --headless --export-pack &quot;BasicExport&quot; &quot;$(PackPckPath)&quot;"
+              EnvironmentVariables="IsInnerGodotExport=true;MSBUILDDISABLENODEREUSE=1"
+              ContinueOnError="WarnAndContinue"
+              Condition="'$(Configuration)' != 'ExportRelease'"/>
+
+        <Exec Command="&quot;$(GodotPath)&quot; --headless --export-pack &quot;BasicExportNoExample&quot; &quot;$(PackPckPath)&quot;"
+              EnvironmentVariables="IsInnerGodotExport=true;MSBUILDDISABLENODEREUSE=1"
+              ContinueOnError="WarnAndContinue"
+              Condition="'$(Configuration)' == 'ExportRelease'"/>
+    </Target>
+
+    <!-- 显式声明 NuGet 内容，避免 Godot SDK 的默认打包行为漏掉文件 -->
+    <Target Name="AddFilesToNuGetPackage" DependsOnTargets="ResolveProjectReferences;Build">
+        <ItemGroup>
+            <TfmSpecificPackageFile Include="MinionLib.json">
+                <PackagePath>Content/MinionLib.json</PackagePath>
+            </TfmSpecificPackageFile>
+
+            <TfmSpecificPackageFile Include="$(GeneratorDllPath)">
+                <PackagePath>analyzers/dotnet/cs/MinionLib.Generators.dll</PackagePath>
+            </TfmSpecificPackageFile>
+
+            <TfmSpecificPackageFile Include="$(PackPckPath)">
+                <PackagePath>Content/$(MSBuildProjectName).pck</PackagePath>
+            </TfmSpecificPackageFile>
+
+            <TfmSpecificPackageFile Include="README.md">
+                <PackagePath>README.md</PackagePath>
+            </TfmSpecificPackageFile>
+        </ItemGroup>
+    </Target>
+</Project>

@@ -1,0 +1,11 @@
+<Project>
+    <Import Project="LocalSettings.props" Condition="Exists('LocalSettings.props')"/>
+
+    <PropertyGroup>
+        <!-- Megadot current version is 4.5.1, and the game won't load your .pck if the Godot version used is newer. -->
+        <!-- MegaDot / Godot 4.5.1 mono executable used for export-pack when publishing -->
+        <GodotPath Condition="'$(GodotPath)' == ''">C:/megadot/MegaDot_v4.5.1-stable_mono_win64.exe</GodotPath>
+
+        <!-- If sts2 is not found automatically, set it in LocalSettings.props or pass /p:Sts2Path=... -->
+    </PropertyGroup>
+</Project>

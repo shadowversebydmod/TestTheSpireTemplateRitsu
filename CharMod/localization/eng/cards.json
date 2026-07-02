@@ -1,0 +1,6 @@
+{
+  "CharMod.Enhance.prefix": "{IsActive:[gold]|[blue]}Enhance {Cost}: {CapturedDescription}{IsActive:[/gold]|[/blue]}",
+  "SAMPLE_ENHANCE_STRIKE.title": "Sample Enhance Strike",
+  "SAMPLE_ENHANCE_STRIKE.description": "Deal {Damage:diff()} damage.\n{CompPre}",
+  "SAMPLE_ENHANCE_STRIKE.enhance3": "Deal {Damage:diff()} additional damage."
+}

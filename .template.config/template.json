@@ -1,0 +1,75 @@
+{
+    "author": "shadowversebydmod",
+    "name": "TestTheSpire STS2 RitsuLib Character Mod",
+    "description": "A Slay the Spire 2 character mod template with RitsuLib, MinionLib, TestTheSpire tests, and bundled Codex skills.",
+    "identity": "ShadowverseBydMod.TestTheSpireTemplateRitsu.Sts2CharMod",
+    "shortName": "testthespire-sts2-character-ritsu",
+    "tags": {
+        "language": "C#",
+        "type": "project"
+    },
+    "sourceName": "CharMod",
+    "sources": [
+        {
+            "modifiers":[
+                {
+                    "condition": true,
+                    "exclude":[
+                        ".git/**",
+                        ".godot/**",
+                        ".idea/**",
+                        "artifacts/**",
+                        "bin/**",
+                        "obj/**",
+                        "**/bin/**",
+                        "**/obj/**",
+                        "mod/**",
+                        "mod-deps/**",
+                        "**/mod/**",
+                        "**/mod-deps/**",
+                        "TestResults/**",
+                        "coverage/**",
+                        "local/**",
+                        "LocalSettings.props",
+                        "Properties/**",
+                        "README.md",
+                        "README.en.md",
+                        "bundled_skills/**"
+                    ]
+                }
+            ]
+        }
+    ],
+    "symbols": {
+        "ModAuthor":{
+            "type": "parameter",
+            "dataType": "string",
+            "isRequired": "true",
+            "replaces": "{ModAuthor}",
+            "defaultValue": "Author"
+        },
+        "PublicizeSts":{
+            "type": "parameter",
+            "dataType":"bool",
+            "defaultValue": "false",
+            "replaces": "{PublicizeSts}",
+            "description": "If enabled, non-virtual private and protected symbols in the Slay the Spire 2 .dll will be publicized."
+        },
+        "NullableChecks":{
+            "type": "parameter",
+            "dataType":"choice",
+            "choices": [
+                {
+                    "choice": "enable",
+                    "description": "More strict handling of possibly null values."
+                },
+                {
+                    "choice": "disable",
+                    "description": ""
+                }
+            ],
+            "replaces": "{NullableChecks}",
+            "defaultValue": "enable"
+        }
+    }
+}

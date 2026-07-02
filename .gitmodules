@@ -1,0 +1,6 @@
+[submodule "local/MinionLib"]
+	path = local/MinionLib
+	url = https://github.com/FuYnAloft/MinionLib.git
+[submodule "bundled_skills"]
+	path = bundled_skills
+	url = https://github.com/shadowversebydmod/TestTheSpireSkills.git
