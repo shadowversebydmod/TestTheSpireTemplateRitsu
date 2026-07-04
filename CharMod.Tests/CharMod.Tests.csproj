@@ -20,9 +20,9 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="STS2.RitsuLib" Version="0.2.36" />
-        <PackageReference Include="FuYnAloft.Sts2.MinionLib" Version="0.5.2" />
-        <PackageReference Include="TestTheSpire" Version="0.1.3" />
+        <PackageReference Include="STS2.RitsuLib" Version="0.4.51" />
+        <PackageReference Include="FuYnAloft.Sts2.MinionLib" Version="0.6.0" />
+        <PackageReference Include="TestTheSpire" Version="0.1.4" />
         <AdditionalFiles Include="../CharMod/localization/**/*.json" />
     </ItemGroup>
 
